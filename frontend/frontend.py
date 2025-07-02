@@ -10,7 +10,9 @@ city = st.text_input("Enter a city name:", "Delhi")
 if st.button("Get Weather"):
     with st.spinner("Fetching weather data..."):
         try:
-            response = requests.get(f"http://127.0.0.1:5000/api/weather?city={city}")
+            params = {"city": city}
+            response = requests.get("https://weather-backend-harshit.azurewebsites.net/api/weather", params=params)
+
             data = response.json()
 
             if "error" in data:
