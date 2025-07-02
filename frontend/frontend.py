@@ -11,7 +11,7 @@ if st.button("Get Weather"):
     with st.spinner("Fetching weather data..."):
         try:
             params = {"city": city}
-            response = requests.get("https://weather-backend-harshit.azurewebsites.net/api/weather", params=params)
+            response = requests.get("https://weather-frontend-argbfda8byc6a3bv.centralindia-01.azurewebsites.net//api/weather", params=params)
 
             data = response.json()
 
