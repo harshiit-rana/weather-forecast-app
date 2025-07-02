@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - weather-frontend
+name: Build and deploy frontend to Azure Web App - weather-frontend
 
 on:
   push:
@@ -14,65 +14,57 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python version
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Create and start virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-      
       - name: Install dependencies
-        run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+        run: |
+          cd frontend
+          pip install -r requirements.txt
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+      - name: Zip only frontend folder
+        run: |
+          cd frontend
+          zip -r ../frontend_release.zip .
 
-      - name: Upload artifact for deployment jobs
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: python-app
-          path: |
-            release.zip
-            !venv/
+          name: frontend-app
+          path: frontend_release.zip
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: python-app
+          name: frontend-app
 
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
+      - name: Unzip artifact
+        run: unzip frontend_release.zip
 
-      
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_DBA088BB26274FF79A69067B05676FAE }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C11D80431D5B425A8444C10E8FBE0E3E }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_24DFD96F74A340B482A1F92F113AC802 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
           app-name: 'weather-frontend'
           slot-name: 'Production'
-          
