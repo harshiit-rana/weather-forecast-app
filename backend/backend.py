@@ -54,13 +54,13 @@ def fetch_weather(city):
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-@app.route("/")
-def home():
-    return "Backend is running!"
-
 app = Flask(__name__)
 CORS(app)
 
+@app.route("/")
+def home():
+    return "Backend is running!"
+    
 @app.route("/api/weather")
 def weather_api():
     city = request.args.get("city")
